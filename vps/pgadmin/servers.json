@@ -1,0 +1,14 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "JamLyrics VPS",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "jamlyrics",
+      "Username": "jamlyrics",
+      "SSLMode": "prefer",
+      "Comment": "Auto-registered. Host 'postgres' is the compose service name. Enter the password on connect."
+    }
+  }
+}
