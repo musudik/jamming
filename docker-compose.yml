@@ -1,0 +1,55 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: jamlyrics-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: jamlyrics
+      POSTGRES_PASSWORD: jamlyrics
+      POSTGRES_DB: jamlyrics
+    ports:
+      - "5434:5432" # host:container — 5434 avoids clashing with other local Postgres
+    volumes:
+      - jamlyrics_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jamlyrics -d jamlyrics"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+    container_name: jamlyrics-backend
+    restart: unless-stopped
+    environment:
+      # Inside the compose network the DB is reachable at db:5432.
+      DATABASE_URL: "postgresql://jamlyrics:jamlyrics@db:5432/jamlyrics?schema=public"
+      PORT: "4000"
+      JWT_SECRET: "change-me-to-a-long-random-string"
+      JWT_EXPIRES_IN: "7d"
+      SEED_ADMIN_EMAIL: "admin@jamlyrics.local"
+      SEED_ADMIN_PASSWORD: "admin123"
+      # Same-origin via the nginx proxy, so CORS is not strictly needed; kept permissive.
+      CORS_ORIGIN: "*"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "4000:4000" # exposed for direct API access / debugging (optional)
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Empty => app calls /api on its own origin, which nginx proxies to backend.
+        VITE_API_BASE: ""
+    container_name: jamlyrics-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8080:80" # open the app at http://localhost:8080
+
+volumes:
+  jamlyrics_pgdata:

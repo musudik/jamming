@@ -1,0 +1,17 @@
+{
+  "name": "Telugu Jamming Munich",
+  "short_name": "JamLyrics",
+  "description": "Digital lyric reader for jamming events.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a3b37",
+  "theme_color": "#0a3b37",
+  "icons": [
+    {
+      "src": "/assets/Logo.png",
+      "sizes": "2000x2000",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

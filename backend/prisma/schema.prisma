@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+
+  events Event[]
+}
+
+model Event {
+  id          String      @id @default(uuid())
+  name        String
+  date        DateTime?
+  venue       String?
+  description String?
+  coverImage  String?
+  status      EventStatus @default(DRAFT)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  ownerId String
+  owner   Admin  @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  songs EventSong[]
+}
+
+model Song {
+  id        String   @id @default(uuid())
+  title     String
+  artist    String?
+  language  String?
+  genre     String?
+  lyrics    String   @db.Text
+  duration  Int? // seconds
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  events EventSong[]
+}
+
+// Join table (PRD §6 Event Songs) — lets a song belong to multiple events with ordering.
+model EventSong {
+  eventId      String
+  songId       String
+  displayOrder Int    @default(0)
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  song  Song  @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, songId])
+  @@index([eventId, displayOrder])
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}

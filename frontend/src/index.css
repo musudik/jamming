@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply text-cream antialiased;
+  /* Deep teal gradient with a warm vignette, matching the poster. */
+  background-color: #069b9b;
+  background-image: radial-gradient(
+      120% 80% at 50% -10%,
+      rgba(229, 130, 30, 0.18) 0%,
+      rgba(10, 59, 55, 0) 55%
+    ),
+    radial-gradient(100% 60% at 50% 110%, #062826 0%, rgba(6, 40, 38, 0) 60%);
+  background-attachment: fixed;
+}
+
+/* Larger, comfortable tap targets on touch devices. */
+button,
+a,
+select,
+input {
+  -webkit-tap-highlight-color: transparent;
+}
