@@ -8,6 +8,7 @@
     "start": "node src/server.js",
     "seed": "node prisma/seed.js",
     "load:songs": "node scripts/load-songs.mjs",
+    "load:songs:db": "node scripts/load-songs-db.mjs",
     "prisma:studio": "prisma studio"
   },
   "dependencies": {
