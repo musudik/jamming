@@ -1,0 +1,6 @@
+# Auto-HTTPS reverse proxy for the JamLyrics API.
+# API_DOMAIN comes from .env (e.g. api.207-180-235-87.sslip.io).
+# Caddy fetches a Let's Encrypt cert automatically (needs ports 80 + 443 reachable).
+{$API_DOMAIN} {
+	reverse_proxy backend:4000
+}
