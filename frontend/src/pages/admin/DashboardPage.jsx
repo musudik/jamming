@@ -12,8 +12,10 @@ export default function DashboardPage() {
 
   async function load() {
     try {
-      setEvents(await api.listEvents());
+      const data = await api.listEvents();
+      setEvents(Array.isArray(data) ? data : []); // guard against unexpected non-array
     } catch (err) {
+      setEvents([]); // stop the spinner; the error box explains what happened
       setError(err.message);
     }
   }

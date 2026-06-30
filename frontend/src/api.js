@@ -29,6 +29,16 @@ async function request(path, { method = "GET", body, auth = false } = {}) {
 
   if (res.status === 204) return null;
 
+  // If we got HTML (or anything non-JSON), the API base is almost certainly wrong:
+  // the call hit the frontend's own host and got index.html back instead of the API.
+  const contentType = res.headers.get("content-type") || "";
+  if (!contentType.includes("application/json")) {
+    throw new Error(
+      `API did not return JSON for ${path} (got "${contentType || "unknown"}"). ` +
+        `Check that VITE_API_BASE points to the backend (currently "${BASE || "same-origin"}").`
+    );
+  }
+
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
     const err = new Error(data.error || `Request failed (${res.status})`);
