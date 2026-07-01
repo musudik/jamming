@@ -81,7 +81,8 @@ services:
     environment:
       API_DOMAIN: ${API_DOMAIN}
     ports:
-      - "80:80"
+      # Port 80 is intentionally NOT published — it's used by another service on this VPS.
+      # Caddy gets its cert via the TLS-ALPN-01 challenge on 443 instead.
       - "443:443"
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
