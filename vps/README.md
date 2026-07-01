@@ -1,31 +1,35 @@
 # JamLyrics on a VPS (backend + database) + Vercel (frontend)
 
-Runs the whole backend stack on your VPS and lets Vercel host only the static frontend.
+Runs the backend stack on your VPS and lets Vercel host only the static frontend.
+This VPS already runs a **host nginx** on ports 80/443, so that nginx (not Caddy) is the
+HTTPS entry point — it reverse-proxies to the backend container on `127.0.0.1:4000`.
 
 ```
 Browser ──HTTPS──► Vercel (React SPA)
                       │  VITE_API_BASE = https://<API_DOMAIN>
                       ▼
-VPS:  Caddy (HTTPS, auto-cert) ─► backend (Express :4000) ─► Postgres ◄─ pgAdmin
+VPS host nginx (443, TLS via certbot) ─► 127.0.0.1:4000 backend ─► Postgres ◄─ pgAdmin
 ```
 
 ```
 vps/
-├── docker-compose.yml        postgres + pgadmin + backend + caddy
-├── .env.example              all credentials / settings (copy to .env)
-├── init/01-create-schema.sh  creates POSTGRES_SCHEMA on first init
-├── pgadmin/servers.json      pre-registers the DB in pgAdmin
-└── caddy/Caddyfile           HTTPS reverse proxy → backend
+├── docker-compose.yml          postgres + pgadmin + backend
+├── .env.example                all credentials / settings (copy to .env)
+├── init/01-create-schema.sh    creates POSTGRES_SCHEMA on first init
+├── pgadmin/servers.json        pre-registers the DB in pgAdmin
+└── nginx/jamlyrics-api.conf     host-nginx vhost → backend (add certbot for TLS)
 ```
 
 ## Services
 
-| Service  | Exposure              | Purpose                                        |
-|----------|-----------------------|------------------------------------------------|
-| caddy    | **80 + 443** (public) | HTTPS entry point; proxies to the backend      |
-| backend  | internal only         | Express API (Prisma); migrates + seeds on boot |
-| postgres | internal (5432)       | database (host `${POSTGRES_PORT}` optional)    |
-| pgadmin  | `${PGADMIN_PORT}` 5050| DB web UI at `http://<VPS_IP>:5050`            |
+| Service  | Exposure                | Purpose                                        |
+|----------|-------------------------|------------------------------------------------|
+| backend  | `127.0.0.1:4000` (local)| Express API (Prisma); migrates + seeds on boot |
+| postgres | internal (5432)         | database (host `${POSTGRES_PORT}` optional)    |
+| pgadmin  | `${PGADMIN_PORT}` 5050  | DB web UI at `http://<VPS_IP>:5050`            |
+
+HTTPS is handled by the **existing host nginx**, not by this compose. The backend is bound to
+`127.0.0.1` so it's only reachable through nginx, never directly from the internet.
 
 The backend talks to Postgres over the internal Docker network, so **Postgres does not need
 to be exposed publicly** — you can drop the `postgres` `ports:` mapping (and close 5443) for
@@ -45,22 +49,35 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-Open the VPS firewall for HTTP/HTTPS (Caddy needs both for the cert challenge):
+The backend is now on `127.0.0.1:4000`. Confirm it's healthy locally:
 
 ```bash
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
-sudo ufw allow 5050/tcp     # pgAdmin (optional)
+curl http://127.0.0.1:4000/api/health      # {"ok":true}
 ```
 
-Caddy fetches a Let's Encrypt cert for `API_DOMAIN` automatically (sslip.io resolves to your
-VPS IP, so no DNS setup is needed). Verify:
+## 2. Front it with the host nginx + HTTPS
+
+Add a vhost to the nginx already running on this VPS, then let certbot add the cert:
+
+```bash
+sudo cp nginx/jamlyrics-api.conf /etc/nginx/sites-available/jamlyrics-api.conf
+sudo ln -s /etc/nginx/sites-available/jamlyrics-api.conf /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
+
+# get the TLS cert (sslip.io resolves to your VPS IP; nginx already answers on :80)
+sudo certbot --nginx -d api.207-180-235-87.sslip.io
+```
+
+certbot rewrites the vhost to serve HTTPS on 443 and reload nginx. Verify from anywhere:
 
 ```bash
 curl https://api.207-180-235-87.sslip.io/api/health      # {"ok":true}
 ```
 
-## 2. Load the songs
+> If your nginx uses `conf.d/` instead of `sites-available/`, drop the file in
+> `/etc/nginx/conf.d/` instead. Make sure `server_name` matches your `API_DOMAIN`.
+
+## 3. Load the songs
 
 The backend image bundles the loader and song data, so run it inside the container:
 
@@ -70,7 +87,7 @@ docker exec jamlyrics-backend node scripts/load-songs-db.mjs
 
 Creates the **Munich – Tollywood Jamming Night** event with all 30 songs (idempotent).
 
-## 3. Point Vercel at the VPS
+## 4. Point Vercel at the VPS
 
 In the Vercel **frontend** project → Settings → Environment Variables:
 
