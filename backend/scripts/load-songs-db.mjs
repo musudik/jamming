@@ -23,9 +23,20 @@ const EVENT_NAME = process.env.EVENT_NAME || "Munich – Tollywood Jamming Night
 const ADMIN_EMAIL = process.env.SEED_ADMIN_EMAIL || "admin@jamlyrics.local";
 const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD || "admin123";
 
+const SONGS_FILE = process.env.SONGS_FILE || "songs.json";
 const songs = JSON.parse(
-  fs.readFileSync(path.join(__dirname, "data", "munich-songs.json"), "utf-8")
+  fs.readFileSync(path.join(__dirname, "data", SONGS_FILE), "utf-8")
 );
+
+// Supports both the bilingual format ({ telugu, english }) and the old one ({ lines }).
+function lyricsOf(s) {
+  const te = s.telugu || s.lines || [];
+  const en = s.english || [];
+  return {
+    lyrics: te.join("\n"),
+    lyricsEn: en.length ? en.join("\n") : null,
+  };
+}
 
 async function main() {
   // 1. Ensure an admin exists to own the event.
@@ -68,12 +79,14 @@ async function main() {
   // 3. Insert each song + its event link, ordered by the file order (already by number).
   let order = 0;
   for (const s of songs) {
+    const { lyrics, lyricsEn } = lyricsOf(s);
     const song = await prisma.song.create({
       data: {
-        title: `${s.num}. ${s.title}`,
+        title: s.title,
         artist: null,
         language: "Telugu",
-        lyrics: s.lines.join("\n"),
+        lyrics,
+        lyricsEn,
       },
     });
     await prisma.eventSong.create({

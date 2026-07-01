@@ -3,7 +3,7 @@
 
 export function Button({ variant = "primary", className = "", ...props }) {
   const variants = {
-    primary: "bg-brand hover:bg-brand-light text-ink font-semibold",
+    primary: "bg-brand hover:bg-brand-light text-onbrand font-semibold",
     secondary: "bg-raised hover:bg-line text-cream",
     danger: "bg-red-600 hover:bg-red-500 text-white",
     ghost: "bg-transparent hover:bg-surface text-muted hover:text-cream",

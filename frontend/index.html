@@ -8,6 +8,13 @@
     <link rel="apple-touch-icon" href="/assets/Logo.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <title>Telugu Jamming Munich</title>
+    <script>
+      // Apply the saved colour theme before first paint (no flash).
+      try {
+        var t = localStorage.getItem("jamlyrics_theme") || "telugu";
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

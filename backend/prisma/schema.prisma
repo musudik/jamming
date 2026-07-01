@@ -40,7 +40,8 @@ model Song {
   artist    String?
   language  String?
   genre     String?
-  lyrics    String   @db.Text
+  lyrics    String   @db.Text // primary lyrics (Telugu)
+  lyricsEn  String?  @db.Text // optional second language (English / romanized)
   duration  Int? // seconds
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

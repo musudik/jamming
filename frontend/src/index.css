@@ -2,6 +2,95 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Theme palettes ────────────────────────────────────────────────
+   Each variable is space-separated RGB channels (so Tailwind's /opacity works).
+   The active theme is chosen by data-theme on <html> (see src/theme.js).
+   :root is the default "Telugu" (teal & gold) theme.                */
+:root,
+[data-theme="telugu"] {
+  --c-ink: 6 40 38;
+  --c-base: 10 59 55;
+  --c-surface: 14 74 69;
+  --c-raised: 18 96 90;
+  --c-line: 29 111 103;
+  --c-cream: 246 240 226;
+  --c-muted: 163 195 190;
+  --c-brand: 229 130 30;
+  --c-brand-light: 244 162 58;
+  --c-brand-dark: 198 109 18;
+  --c-onbrand: 6 40 38;
+}
+
+[data-theme="metallics"] {
+  --c-ink: 8 7 6;
+  --c-base: 19 17 16;
+  --c-surface: 32 29 25;
+  --c-raised: 43 38 33;
+  --c-line: 89 77 70;
+  --c-cream: 239 239 239;
+  --c-muted: 168 159 151;
+  --c-brand: 209 178 128;
+  --c-brand-light: 224 199 155;
+  --c-brand-dark: 184 150 95;
+  --c-onbrand: 19 17 16;
+}
+
+[data-theme="aqua"] {
+  --c-ink: 0 42 38;
+  --c-base: 0 63 58;
+  --c-surface: 0 77 71;
+  --c-raised: 10 97 87;
+  --c-line: 18 130 119;
+  --c-cream: 238 244 243;
+  --c-muted: 185 196 201;
+  --c-brand: 52 179 163;
+  --c-brand-light: 87 204 188;
+  --c-brand-dark: 18 130 119;
+  --c-onbrand: 0 42 38;
+}
+
+[data-theme="reds"] {
+  --c-ink: 24 10 12;
+  --c-base: 36 16 15;
+  --c-surface: 51 23 25;
+  --c-raised: 66 29 32;
+  --c-line: 92 48 51;
+  --c-cream: 240 239 234;
+  --c-muted: 192 178 181;
+  --c-brand: 215 44 22;
+  --c-brand-light: 239 91 69;
+  --c-brand-dark: 161 1 21;
+  --c-onbrand: 240 239 234;
+}
+
+[data-theme="cultured"] {
+  --c-ink: 36 30 42;
+  --c-base: 48 40 56;
+  --c-surface: 76 63 84;
+  --c-raised: 91 76 99;
+  --c-line: 109 92 118;
+  --c-cream: 245 239 243;
+  --c-muted: 182 169 191;
+  --c-brand: 242 192 87;
+  --c-brand-light: 247 208 120;
+  --c-brand-dark: 217 168 63;
+  --c-onbrand: 36 30 42;
+}
+
+[data-theme="berry"] {
+  --c-ink: 20 21 27;
+  --c-base: 30 31 38;
+  --c-surface: 40 54 85;
+  --c-raised: 51 69 107;
+  --c-line: 77 100 141;
+  --c-cream: 228 237 251;
+  --c-muted: 169 188 224;
+  --c-brand: 111 151 216;
+  --c-brand-light: 147 179 234;
+  --c-brand-dark: 77 100 141;
+  --c-onbrand: 20 21 27;
+}
+
 html,
 body,
 #root {
@@ -10,14 +99,14 @@ body,
 
 body {
   @apply text-cream antialiased;
-  /* Deep teal gradient with a warm vignette, matching the poster. */
-  background-color: #069b9b;
+  /* Base color + a warm glow from the accent + a dark vignette — all theme-driven. */
+  background-color: rgb(var(--c-base));
   background-image: radial-gradient(
       120% 80% at 50% -10%,
-      rgba(229, 130, 30, 0.18) 0%,
-      rgba(10, 59, 55, 0) 55%
+      rgb(var(--c-brand) / 0.16) 0%,
+      rgb(var(--c-base) / 0) 55%
     ),
-    radial-gradient(100% 60% at 50% 110%, #062826 0%, rgba(6, 40, 38, 0) 60%);
+    radial-gradient(100% 60% at 50% 110%, rgb(var(--c-ink)) 0%, rgb(var(--c-ink) / 0) 60%);
   background-attachment: fixed;
 }
 

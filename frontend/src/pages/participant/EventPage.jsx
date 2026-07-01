@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api } from "../../api.js";
 import { Spinner, ErrorBox, Logo } from "../../components/ui.jsx";
+import ThemePicker from "../../components/ThemePicker.jsx";
 
 export default function EventPage() {
   const { id } = useParams();
@@ -43,6 +44,9 @@ export default function EventPage() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-6">
+      <div className="mb-2 flex justify-end">
+        <ThemePicker />
+      </div>
       <Logo className="mb-5 h-20" />
       <header className="mb-5">
         <h1 className="text-2xl font-bold text-brand-light">{event.name}</h1>
@@ -84,12 +88,17 @@ export default function EventPage() {
           <li key={s.id}>
             <Link
               to={`/event/${id}/song/${s.id}`}
-              className="block rounded-xl border border-line bg-surface px-4 py-3 active:bg-raised"
+              className="flex items-center gap-3 rounded-xl border border-line bg-surface px-4 py-3 active:bg-raised"
             >
-              <div className="font-semibold">{s.title}</div>
-              <div className="text-sm text-muted">
-                {[s.artist, s.language].filter(Boolean).join(" · ") || "—"}
-              </div>
+              <span className="w-7 shrink-0 text-right font-semibold tabular-nums text-brand-light">
+                {s.displayOrder + 1}
+              </span>
+              <span className="min-w-0">
+                <span className="block font-semibold">{s.title}</span>
+                <span className="block text-sm text-muted">
+                  {[s.artist, s.language].filter(Boolean).join(" · ") || "—"}
+                </span>
+              </span>
             </Link>
           </li>
         ))}

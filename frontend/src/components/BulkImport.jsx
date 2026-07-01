@@ -150,7 +150,7 @@ export default function BulkImport({ eventId, onImported }) {
               reset();
             }}
             className={`flex-1 rounded-md px-3 py-1.5 text-sm ${
-              source === s.key ? "bg-brand font-semibold text-ink" : "text-muted"
+              source === s.key ? "bg-brand font-semibold text-onbrand" : "text-muted"
             }`}
           >
             {s.label}

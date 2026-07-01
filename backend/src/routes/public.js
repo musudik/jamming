@@ -46,5 +46,5 @@ publicRouter.get("/events/:id/songs/:songId", async (req, res) => {
     include: { song: true },
   });
   if (!link) return res.status(404).json({ error: "Song not found" });
-  res.json(link.song);
+  res.json({ ...link.song, displayOrder: link.displayOrder });
 });

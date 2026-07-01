@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api } from "../../api.js";
 import { Spinner, ErrorBox } from "../../components/ui.jsx";
+import ThemePicker from "../../components/ThemePicker.jsx";
 
 // Auto-scroll speeds in pixels per second.
 const SPEEDS = {
@@ -18,6 +19,7 @@ export default function LyricsPage() {
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState("Slow");
   const [fontScale, setFontScale] = useState(1);
+  const [lang, setLang] = useState("te"); // "te" = Telugu, "en" = English
 
   const scrollRef = useRef(null);
   const rafRef = useRef(null);
@@ -74,21 +76,59 @@ export default function LyricsPage() {
     setPlaying(true);
   }
 
+  // Switching language resets the scroll and pauses, so auto-scroll starts clean.
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+    setPlaying(false);
+  }, [lang]);
+
   if (error) return <ErrorBox message={error} />;
   if (!song) return <Spinner />;
+
+  const hasEn = Boolean(song.lyricsEn && song.lyricsEn.trim());
+  const shown = lang === "en" && hasEn ? song.lyricsEn : song.lyrics;
 
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
       <header className="shrink-0 border-b border-line bg-base/95 px-4 py-3 backdrop-blur">
-        <Link
-          to={`/event/${id}`}
-          className="text-sm text-muted hover:text-cream"
-        >
-          ← Song list
-        </Link>
-        <h1 className="mt-1 text-xl font-bold leading-tight text-brand-light">{song.title}</h1>
-        {song.artist && <p className="text-sm text-muted">{song.artist}</p>}
+        <div className="flex items-center justify-between">
+          <Link to={`/event/${id}`} className="text-sm text-muted hover:text-cream">
+            ← Song list
+          </Link>
+          <ThemePicker />
+        </div>
+        <div className="mt-1 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="text-xl font-bold leading-tight text-brand-light">
+              {song.displayOrder != null && (
+                <span className="tabular-nums">{song.displayOrder + 1}. </span>
+              )}
+              {song.title}
+            </h1>
+            {song.artist && <p className="text-sm text-muted">{song.artist}</p>}
+          </div>
+          {hasEn && (
+            <div className="flex shrink-0 gap-1 rounded-lg bg-surface p-1">
+              <button
+                onClick={() => setLang("te")}
+                className={`rounded-md px-3 py-1 text-sm ${
+                  lang === "te" ? "bg-brand font-semibold text-onbrand" : "text-muted"
+                }`}
+              >
+                తెలుగు
+              </button>
+              <button
+                onClick={() => setLang("en")}
+                className={`rounded-md px-3 py-1 text-sm ${
+                  lang === "en" ? "bg-brand font-semibold text-onbrand" : "text-muted"
+                }`}
+              >
+                English
+              </button>
+            </div>
+          )}
+        </div>
       </header>
 
       {/* Lyrics scroll area */}
@@ -101,7 +141,7 @@ export default function LyricsPage() {
           className="whitespace-pre-wrap font-sans leading-relaxed text-cream"
           style={{ fontSize: `${1.25 * fontScale}rem` }}
         >
-          {song.lyrics}
+          {shown}
         </pre>
         {/* Tail spacing so the last line can scroll to centre */}
         <div className="h-[40vh]" />
@@ -116,7 +156,7 @@ export default function LyricsPage() {
                 key={s}
                 onClick={() => setSpeed(s)}
                 className={`rounded-md px-3 py-1 text-sm ${
-                  speed === s ? "bg-brand font-semibold text-ink" : "text-muted"
+                  speed === s ? "bg-brand font-semibold text-onbrand" : "text-muted"
                 }`}
               >
                 {s}
@@ -145,7 +185,7 @@ export default function LyricsPage() {
         <div className="mt-3 flex gap-2">
           <button
             onClick={() => setPlaying((p) => !p)}
-            className="flex-1 rounded-lg bg-brand py-3 font-semibold text-ink active:bg-brand-light"
+            className="flex-1 rounded-lg bg-brand py-3 font-semibold text-onbrand active:bg-brand-light"
           >
             {playing ? "⏸ Pause" : "▶ Auto-scroll"}
           </button>
