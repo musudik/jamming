@@ -60,7 +60,10 @@ export default function LyricsPage() {
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(() => store.get("jam_speed", "Slow"));
   const [fontScale, setFontScale] = useState(() => Number(store.get("jam_font", "1")) || 1);
-  const [lang, setLang] = useState(() => store.get("jam_lang", "te")); // te | en | both
+  const [lang, setLang] = useState(() => {
+    const v = store.get("jam_lang", "te");
+    return v === "en" ? "en" : "te"; // te | en (legacy "both" -> te)
+  });
 
   const scrollRef = useRef(null);
   const rafRef = useRef(null);
@@ -160,7 +163,6 @@ export default function LyricsPage() {
   const LANGS = [
     { key: "te", label: "తెలుగు" },
     { key: "en", label: "English" },
-    { key: "both", label: "Both" },
   ];
 
   return (
@@ -208,11 +210,7 @@ export default function LyricsPage() {
         onPointerDown={() => playing && setPlaying(false)}
         style={{ fontSize: `${1.25 * fontScale}rem` }}
       >
-        {effLang === "both" ? (
-          <BothLyrics teLines={teLines} enLines={enLines} />
-        ) : (
-          <SingleLyrics lines={effLang === "en" ? enLines : teLines} />
-        )}
+        <SingleLyrics lines={effLang === "en" ? enLines : teLines} />
         <div className="h-[45vh]" />
       </div>
 
@@ -291,29 +289,6 @@ function SingleLyrics({ lines }) {
     <div className="font-sans text-cream">
       {lines.map((l, i) =>
         l.trim() ? <div key={i}>{l}</div> : <div key={i} className="h-[0.6em]" />
-      )}
-    </div>
-  );
-}
-
-// Telugu line with its romanization beneath (karaoke-style dual display).
-function BothLyrics({ teLines, enLines }) {
-  const n = Math.max(teLines.length, enLines.length);
-  const rows = Array.from({ length: n }, (_, i) => ({
-    te: (teLines[i] || "").trim(),
-    en: (enLines[i] || "").trim(),
-  }));
-  return (
-    <div className="font-sans">
-      {rows.map((r, i) =>
-        !r.te && !r.en ? (
-          <div key={i} className="h-[0.7em]" />
-        ) : (
-          <div key={i} className="mb-2">
-            {r.te && <div className="text-cream">{r.te}</div>}
-            {r.en && <div className="text-[0.72em] text-muted">{r.en}</div>}
-          </div>
-        )
       )}
     </div>
   );
