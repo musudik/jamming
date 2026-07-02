@@ -1,8 +1,24 @@
 import "dotenv/config";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const prisma = new PrismaClient();
+
+const EVENT_NAME = process.env.EVENT_NAME || "Munich – Tollywood Jamming Night";
+
+// Master song data lives in scripts/data/songs.json (Telugu + English per song).
+const SONGS_PATH = path.join(__dirname, "..", "scripts", "data", "songs.json");
+
+// Supports the bilingual format ({ telugu, english }) and the old one ({ lines }).
+function lyricsOf(s) {
+  const te = s.telugu || s.lines || [];
+  const en = s.english || [];
+  return { lyrics: te.join("\n"), lyricsEn: en.length ? en.join("\n") : null };
+}
 
 async function main() {
   const email = process.env.SEED_ADMIN_EMAIL || "admin@jamlyrics.local";
@@ -16,51 +32,41 @@ async function main() {
   });
   console.log(`Admin ready: ${email} / ${password}`);
 
-  // Sample event + songs so the participant flow works out of the box.
-  const existing = await prisma.event.findFirst({ where: { ownerId: admin.id } });
-  if (existing) {
-    console.log("Sample event already exists, skipping.");
-    return;
-  }
+  const songs = JSON.parse(fs.readFileSync(SONGS_PATH, "utf-8"));
 
-  const event = await prisma.event.create({
-    data: {
-      name: "Friday Night Jam",
-      venue: "The Garage",
-      description: "Open mic acoustic session.",
-      status: "PUBLISHED",
-      ownerId: admin.id,
-    },
+  // Find-or-create the event, then refresh its songs from songs.json (idempotent).
+  let event = await prisma.event.findFirst({
+    where: { name: EVENT_NAME, ownerId: admin.id },
   });
-
-  const songs = [
-    {
-      title: "Wonderwall",
-      artist: "Oasis",
-      language: "English",
-      genre: "Rock",
-      lyrics:
-        "Today is gonna be the day\nThat they're gonna throw it back to you\nBy now you should've somehow\nRealized what you gotta do\n\nI don't believe that anybody\nFeels the way I do about you now\n\nAnd all the roads we have to walk are winding\nAnd all the lights that lead us there are blinding\n\nBecause maybe\nYou're gonna be the one that saves me\nAnd after all\nYou're my wonderwall",
-    },
-    {
-      title: "Knockin' on Heaven's Door",
-      artist: "Bob Dylan",
-      language: "English",
-      genre: "Folk",
-      lyrics:
-        "Mama, take this badge off of me\nI can't use it anymore\nIt's getting dark, too dark to see\nFeels like I'm knockin' on heaven's door\n\nKnock, knock, knockin' on heaven's door\nKnock, knock, knockin' on heaven's door",
-    },
-  ];
+  if (event) {
+    await prisma.eventSong.deleteMany({ where: { eventId: event.id } });
+    await prisma.song.deleteMany({ where: { events: { none: {} } } }); // drop orphaned songs
+  } else {
+    event = await prisma.event.create({
+      data: {
+        name: EVENT_NAME,
+        venue: "Borschtallee 26, 80804 München",
+        date: new Date("2026-07-04T18:30:00.000Z"),
+        description:
+          "Munich's first Telugu Jamming Night — bring your voice, bring your instruments.",
+        status: "PUBLISHED",
+        ownerId: admin.id,
+      },
+    });
+  }
 
   let order = 0;
   for (const s of songs) {
-    const song = await prisma.song.create({ data: s });
+    const { lyrics, lyricsEn } = lyricsOf(s);
+    const song = await prisma.song.create({
+      data: { title: s.title, artist: s.artist ?? null, language: "Telugu", lyrics, lyricsEn },
+    });
     await prisma.eventSong.create({
       data: { eventId: event.id, songId: song.id, displayOrder: order++ },
     });
   }
 
-  console.log(`Sample event created: ${event.id}`);
+  console.log(`Seeded ${songs.length} songs into "${EVENT_NAME}" (${event.id})`);
 }
 
 main()
