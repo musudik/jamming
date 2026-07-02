@@ -1,4 +1,4 @@
-// Load the Munich Tollywood songs into a JamLyrics deployment via its API.
+// Load the Munich Telugu songs into a JamLyrics deployment via its API.
 //
 // Usage (PowerShell):
 //   $env:API_BASE="https://your-backend.onrender.com"; `
@@ -16,7 +16,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const API = process.env.API_BASE || "http://localhost:4000";
 const EMAIL = process.env.ADMIN_EMAIL || "admin@jamlyrics.local";
 const PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
-const EVENT_NAME = process.env.EVENT_NAME || "Munich – Tollywood Jamming Night";
+const EVENT_NAME = process.env.EVENT_NAME || "Munich – Telugu Jamming Night";
 
 const songs = JSON.parse(
   fs.readFileSync(path.join(__dirname, "data", "munich-songs.json"), "utf-8")

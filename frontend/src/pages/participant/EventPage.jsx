@@ -67,7 +67,7 @@ export default function EventPage() {
           onChange={(e) => setQuery(e.target.value)}
           className="w-full rounded-lg border border-line bg-surface px-3 py-2 outline-none focus:border-brand"
         />
-        {languages.length > 0 && (
+        {/* {languages.length > 0 && (
           <select
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
@@ -80,7 +80,7 @@ export default function EventPage() {
               </option>
             ))}
           </select>
-        )}
+        )} */}
       </div>
 
       <ul className="flex flex-col gap-2">

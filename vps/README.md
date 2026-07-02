@@ -85,7 +85,7 @@ The backend image bundles the loader and song data, so run it inside the contain
 docker exec jamlyrics-backend node scripts/load-songs-db.mjs
 ```
 
-Creates the **Munich – Tollywood Jamming Night** event with all 30 songs (idempotent).
+Creates the **Munich – Telugu Jamming Night** event with all 30 songs (idempotent).
 
 ## 4. Point Vercel at the VPS
 

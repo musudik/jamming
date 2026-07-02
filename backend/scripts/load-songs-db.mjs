@@ -1,4 +1,4 @@
-// Load the Munich Tollywood songs DIRECTLY into the database via Prisma.
+// Load the Munich Telugu songs DIRECTLY into the database via Prisma.
 // Use this when you have a standalone Postgres (e.g. on a VPS) and no running backend.
 //
 // Steps:
@@ -19,7 +19,7 @@ import { PrismaClient } from "@prisma/client";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const prisma = new PrismaClient();
 
-const EVENT_NAME = process.env.EVENT_NAME || "Munich – Tollywood Jamming Night";
+const EVENT_NAME = process.env.EVENT_NAME || "Munich – Telugu Jamming Night";
 const ADMIN_EMAIL = process.env.SEED_ADMIN_EMAIL || "admin@jamlyrics.local";
 const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD || "admin123";
 

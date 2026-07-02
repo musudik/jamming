@@ -70,7 +70,7 @@ $env:ADMIN_PASSWORD="<the password you set on Render>"
 node backend/scripts/load-songs.mjs
 ```
 
-This creates the **Munich – Tollywood Jamming Night** event and imports all 30 songs
+This creates the **Munich – Telugu Jamming Night** event and imports all 30 songs
 (ordered by number). Re-running it clears and reloads that event (idempotent).
 
 ---

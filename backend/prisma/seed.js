@@ -8,7 +8,7 @@ import { PrismaClient } from "@prisma/client";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const prisma = new PrismaClient();
 
-const EVENT_NAME = process.env.EVENT_NAME || "Munich – Tollywood Jamming Night";
+const EVENT_NAME = process.env.EVENT_NAME || "Munich – Telugu Jamming Night";
 
 // Master song data lives in scripts/data/songs.json (Telugu + English per song).
 const SONGS_PATH = path.join(__dirname, "..", "scripts", "data", "songs.json");
