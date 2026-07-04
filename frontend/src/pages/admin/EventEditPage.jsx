@@ -13,7 +13,7 @@ const EMPTY_EVENT = {
   status: "DRAFT",
 };
 
-const EMPTY_SONG = { title: "", artist: "", language: "", genre: "", lyrics: "" };
+const EMPTY_SONG = { title: "", artist: "", language: "", genre: "", lyrics: "", lyricsEn: "" };
 
 export default function EventEditPage() {
   const { id } = useParams();
@@ -204,6 +204,7 @@ function SongManager({ eventId, songs, setSongs, onError }) {
         language: draft.language || null,
         genre: draft.genre || null,
         lyrics: draft.lyrics,
+        lyricsEn: draft.lyricsEn || null,
       };
       if (editingId) {
         const updated = await api.updateSong(eventId, editingId, payload);
@@ -228,6 +229,7 @@ function SongManager({ eventId, songs, setSongs, onError }) {
       language: song.language || "",
       genre: song.genre || "",
       lyrics: song.lyrics || "",
+      lyricsEn: song.lyricsEn || "",
     });
   }
 
@@ -313,11 +315,19 @@ function SongManager({ eventId, songs, setSongs, onError }) {
         </div>
         <div className="mt-3">
           <Textarea
-            label="Lyrics *"
+            label="Telugu lyrics *"
             rows={6}
             value={draft.lyrics}
             onChange={(e) => setDraft({ ...draft, lyrics: e.target.value })}
             required
+          />
+        </div>
+        <div className="mt-3">
+          <Textarea
+            label="English lyrics (optional)"
+            rows={6}
+            value={draft.lyricsEn}
+            onChange={(e) => setDraft({ ...draft, lyricsEn: e.target.value })}
           />
         </div>
         <div className="mt-4 flex gap-2">

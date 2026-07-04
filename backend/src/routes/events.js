@@ -21,6 +21,7 @@ const songSchema = z.object({
   language: z.string().optional().nullable(),
   genre: z.string().optional().nullable(),
   lyrics: z.string().min(1),
+  lyricsEn: z.string().optional().nullable(),
   duration: z.number().int().positive().optional().nullable(),
   displayOrder: z.number().int().optional(),
 });
